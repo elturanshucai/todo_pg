@@ -10,7 +10,10 @@ export const registerUser = async (req, res) => {
             'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
             [username, hashedPassword]
         )
-        res.status(201).json(data.rows[0])
+        const token = jwt.sign({ id: data.rows[0].id }, process.env.JWT_SECRET)
+        const { password: pass, ...userInfo } = data.rows[0]
+        userInfo.token = token
+        res.status(201).json(userInfo)
     } catch (error) {
         res.status(500).json(error)
     }
