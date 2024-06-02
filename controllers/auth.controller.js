@@ -36,3 +36,21 @@ export const login = async (req, res) => {
         res.status(500).json(error)
     }
 }
+
+export const deleteUser = async (req, res) => {
+    try {
+        const user = await (await pool.query(
+            'SELECT * FROM users WHERE id = $1', [req.userId]
+        )).rows[0]
+        if (!user) return res.status(404).json('User not found');
+        await pool.query(
+            'DELETE FROM todos WHERE userid = $1', [req.userId]
+        )
+        await pool.query(
+            'DELETE FROM users WHERE id = $1', [req.userId]
+        )
+        res.status(200).json('User deleted')
+    } catch (error) {
+        return error;
+    }
+}
